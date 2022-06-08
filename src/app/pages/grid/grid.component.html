@@ -1,0 +1,189 @@
+<h4 class="content-block">Grid</h4>
+
+<dx-data-grid
+  #dataGridRef
+  keyExpr="id"
+  [masterDetail]="{ enabled: true, template: 'masterDetail' }"
+  (onRowPrepared)="onRowPrepared($event)"
+  [dataSource]="dataSource"
+  [showBorders]="true"
+  [columnHidingEnabled]="true"
+  (onContextMenuPreparing)="onContextMenuPreparing($event)"
+  (onRowInserting)="onRowInserting($event)"
+  (onEditingStart)="onEditingStart($event)"
+  [repaintChangesOnly]="true"
+  [showRowLines]="true"
+  [remoteOperations]="false"
+  (onSelectionChanged)="selectedChanged($event)"
+  (onEditorPreparing)="onEditorPreparing($event)"
+  (onCellPrepared)="onCellPrepared($event)"
+  (onFocusedCellChanging)="onFocusedCellChanging($event)">
+  >
+  <dxo-editing
+    mode="row"
+    [allowUpdating]="true"
+    [allowDeleting]="true"
+    [useIcons]="true"
+    refreshMode="repaint"
+    [selectTextOnEditStart]="false"></dxo-editing>
+  <!-- [changes]="changes"
+    [(editRowKey)]="editRowKey" -->
+  <dxo-selection mode="single"></dxo-selection>
+  <dxo-toolbar>
+    <dxi-item location="after">
+      <div *dxTemplate>
+        <dx-button
+          stylingMode="contained"
+          [text]="isExpanded ? 'Collapse All' : 'Expand All'"
+          type="default"
+          [width]="120"
+          (onClick)="onCollapseExpandClick()">
+        </dx-button>
+      </div>
+    </dxi-item>
+    <dxi-item location="after">
+      <div *dxTemplate>
+        <dx-button
+          stylingMode="contained"
+          text="Save"
+          type="default"
+          [width]="120"
+          (onClick)="saveData()">
+        </dx-button>
+      </div>
+    </dxi-item>
+    <dxi-item location="before">
+      <div
+        *dxTemplate
+        class="informer">
+        <span class="name">Row Type</span>
+      </div>
+    </dxi-item>
+    <dxi-item location="before">
+      <div *dxTemplate>
+        <dx-select-box
+          width="100"
+          [items]="rowTypes"
+          [value]="rowType"
+          (onValueChanged)="onRowTypesClick($event)">
+        </dx-select-box>
+      </div>
+    </dxi-item>
+    <dxi-item location="before">
+      <div *dxTemplate>
+        <dx-button
+          stylingMode="contained"
+          text="Insert Before"
+          type="default"
+          [width]="120"
+          [disabled]="selectedRowIndex === -1"
+          (onClick)="insertBefore()">
+        </dx-button>
+      </div>
+    </dxi-item>
+    <dxi-item location="before">
+      <div *dxTemplate>
+        <dx-button
+          stylingMode="contained"
+          text="Insert After"
+          type="default"
+          [width]="120"
+          [disabled]="selectedRowIndex === -1"
+          (onClick)="insertAfter()">
+        </dx-button>
+      </div>
+    </dxi-item>
+  </dxo-toolbar>
+  <dxi-column
+    caption="Alias"
+    dataField="alias"
+    [calculateDisplayValue]="calculateDisplayValue"></dxi-column>
+  <dxi-column
+    dataField="product"
+    caption="Product">
+    <dxo-lookup
+      [dataSource]="productSoure"
+      valueExpr="product"
+      displayExpr="product"></dxo-lookup>
+  </dxi-column>
+
+  <dxi-column
+    dataField="session"
+    caption="Session">
+    <dxo-lookup [dataSource]="sessionSoure"></dxo-lookup>
+  </dxi-column>
+
+  <dxi-column
+    caption="Direction"
+    dataField="direction"
+    cellTemplate="directionTemplate">
+    <dxo-lookup [dataSource]="directionSource"></dxo-lookup>
+  </dxi-column>
+  <div *dxTemplate="let item of 'directionLookupTemplate'">
+    <span *ngIf="item === 'Verify'">
+      <i class="dx-icon-chevrondoubleleft"></i>
+      Verify
+    </span>
+    <span *ngIf="item === 'Send'">
+      <i class="dx-icon-chevrondoubleright"></i>
+      Send
+    </span>
+    <span *ngIf="item === 'Get'">
+      <i class="dx-icon-chevrondoubleleft"></i>
+      GET
+    </span>
+  </div>
+  <!-- [setCellValue]="setValue"> -->
+  <dxi-column
+    dataField="name"
+    [calculateDisplayValue]="calculateNameValue"
+    caption="Name">
+    <dxo-lookup
+      [dataSource]="nameSoure"
+      displayExpr="name"></dxo-lookup>
+  </dxi-column>
+  <dxi-column
+    caption="Super Class"
+    dataField="superClass"></dxi-column>
+  <dxi-column
+    caption="Message"
+    dataField="message"></dxi-column>
+  <dxi-column
+    caption="Type"
+    dataField="type"></dxi-column>
+
+  <div *dxTemplate="let data of 'masterDetail'">
+    <div *ngIf="data.data.rowType==1">
+      <validation-view [rowData]="data.data.validationInfo"></validation-view>
+    </div>
+
+    <div *ngIf="data.data.rowType==2">
+      <dx-text-area
+        [height]="90"
+        [(value)]="data.data.snippetText"
+        [disabled]="true">
+      </dx-text-area>
+    </div>
+
+    <div *ngIf="data.data.rowType==3">
+      <test-view [rowData]="data.data.testCaseInfos"></test-view>
+    </div>
+  </div>
+
+  <div *dxTemplate="let cell of 'directionTemplate'">
+    <span *ngIf="cell.text === 'Verify'">
+      <i class="dx-icon-chevrondoubleleft"></i>
+      Verify
+    </span>
+    <span *ngIf="cell.text === 'Send'">
+      <i class="dx-icon-chevrondoubleright"></i>
+      Send
+    </span>
+    <span *ngIf="cell.text === 'Get'">
+      <i class="dx-icon-chevrondoubleleft"></i>
+      GET
+    </span>
+    <span *ngIf="cell.text === ''">
+    </span>
+  </div>
+</dx-data-grid>
